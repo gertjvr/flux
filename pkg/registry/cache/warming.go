@@ -49,6 +49,7 @@ func clipRefresh(r time.Duration) time.Duration {
 type Warmer struct {
 	clientFactory registry.ClientFactory
 	cache         Client
+	timeout       time.Duration
 	burst         int
 	Trace         bool
 	Priority      chan image.Name
@@ -57,13 +58,14 @@ type Warmer struct {
 
 // NewWarmer creates cache warmer that (when Loop is invoked) will
 // periodically refresh the values kept in the cache.
-func NewWarmer(cf registry.ClientFactory, cacheClient Client, burst int) (*Warmer, error) {
-	if cf == nil || cacheClient == nil || burst <= 0 {
-		return nil, errors.New("arguments must be non-nil (or > 0 in the case of burst)")
+func NewWarmer(cf registry.ClientFactory, cacheClient Client, timeout time.Duration, burst int) (*Warmer, error) {
+	if cf == nil || cacheClient == nil || timeout <= 0 || burst <= 0 {
+		return nil, errors.New("arguments must be non-nil (or > 0 in the case of burst and timeout)")
 	}
 	return &Warmer{
 		clientFactory: cf,
 		cache:         cacheClient,
+		timeout:	   timeout,
 		burst:         burst,
 	}, nil
 }
@@ -149,7 +151,7 @@ func imageCredsToBacklog(imageCreds registry.ImageCreds) []backlogItem {
 func (w *Warmer) warm(ctx context.Context, now time.Time, logger log.Logger, id image.Name, creds registry.Credentials) {
 	errorLogger := log.With(logger, "canonical_name", id.CanonicalName(), "auth", creds)
 
-	cacheManager, err := newRepoCacheManager(now, id, w.clientFactory, creds, time.Minute, w.burst, w.Trace, errorLogger, w.cache)
+	cacheManager, err := newRepoCacheManager(now, id, w.clientFactory, creds, w.timeout, w.burst, w.Trace, errorLogger, w.cache)
 	if err != nil {
 		errorLogger.Log("err", err.Error())
 		return

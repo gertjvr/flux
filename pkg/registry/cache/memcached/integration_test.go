@@ -50,7 +50,7 @@ func TestWarming_WarmerWriteCacheRead(t *testing.T) {
 
 	r := &cache.Cache{Reader: mc}
 
-	w, _ := cache.NewWarmer(remote, mc, 125)
+	w, _ := cache.NewWarmer(remote, mc, time.Minute, 125)
 	shutdown := make(chan struct{})
 	shutdownWg := &sync.WaitGroup{}
 	defer func() {

@@ -150,6 +150,7 @@ func main() {
 		automationInterval   = fs.Duration("automation-interval", 5*time.Minute, "period at which to check for image updates for automated workloads")
 		registryPollInterval = fs.Duration("registry-poll-interval", 5*time.Minute, "period at which to check for updated images")
 		registryRPS          = fs.Float64("registry-rps", 50, "maximum registry requests per second per host")
+		registryTimeout      = fs.Duration("registry-timeout", 1*time.Minute, "maximum time to wait before giving up on tags requests")
 		registryBurst        = fs.Int("registry-burst", defaultRemoteConnections, "maximum number of warmer connections to remote and memcache")
 		registryTrace        = fs.Bool("registry-trace", false, "output trace of image registry requests to log")
 		registryInsecure     = fs.StringSlice("registry-insecure-host", []string{}, "let these registry hosts skip TLS host verification and fall back to using HTTP instead of HTTPS; this allows man-in-the-middle attacks, so use with extreme caution")
@@ -588,7 +589,7 @@ func main() {
 
 		// Warmer
 		var err error
-		cacheWarmer, err = cache.NewWarmer(remoteFactory, cacheClient, *registryBurst)
+		cacheWarmer, err = cache.NewWarmer(remoteFactory, cacheClient, *registryTimeout, *registryBurst)
 		if err != nil {
 			logger.Log("err", err)
 			os.Exit(1)
