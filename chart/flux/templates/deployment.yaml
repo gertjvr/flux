@@ -220,6 +220,7 @@ spec:
           {{- end }}
           - --automation-interval={{ .Values.registry.pollInterval | default .Values.registry.automationInterval }}
           - --registry-rps={{ .Values.registry.rps }}
+          - --registry-timeout={{ .Values.registry.timeout }}
           - --registry-burst={{ .Values.registry.burst }}
           - --registry-trace={{ .Values.registry.trace }}
           {{- if .Values.registry.ecr.require }}

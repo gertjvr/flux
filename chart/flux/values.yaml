@@ -200,6 +200,8 @@ registry:
   automationInterval: "5m"
   # Maximum registry requests per second per host
   rps: 200
+  # Duration after which registry operations time out
+  timeout: "1m"
   # Maximum number of warmer connections to remote and memcache
   burst: 125
   # Output trace of image registry requests to log
